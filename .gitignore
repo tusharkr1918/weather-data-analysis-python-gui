@@ -1,0 +1,8 @@
+Include
+Lib
+Scripts
+share
+identifier.sqlite
+pyvenv.cfg
+weather.db
+weather.exe
