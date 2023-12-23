@@ -6,3 +6,4 @@ identifier.sqlite
 pyvenv.cfg
 weather.db
 weather.exe
+__pycache__/

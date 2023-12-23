@@ -1,10 +1,15 @@
+import os
 import json
 import sqlite3
 
 # !TODO - Deleting the existing API keys
 
-DATABASE = "weather.db"
-JSON_FILE = "last_logged.json"
+
+DATA_DIR = os.path.join(os.path.expanduser("~"), "WeatherDataAnalysis")
+os.makedirs(DATA_DIR, exist_ok=True)
+
+DATABASE = os.path.join(DATA_DIR, "weather.db")
+JSON_FILE = os.path.join(DATA_DIR, "last_logged.json")
 
 
 def create_weather_api_table():
