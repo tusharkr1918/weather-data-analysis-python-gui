@@ -2,7 +2,6 @@ import os
 import sys
 import threading
 import customtkinter as ctk
-import pywinstyles
 from weather_forecast import analyze_and_plot
 from api_manager import create_weather_api_table, save_api, fetch_data, load_from_json
 
@@ -13,6 +12,8 @@ class WeatherApp(ctk.CTk):
         "api_key": "d6e555e890f043ba8f5105021231912"
     }  # [default] ~ on adding new key, it will get removed.
 
+    window_width = 825
+    window_height = 410
     @staticmethod
     def resource_path(relative_path):
         base_path = getattr(
@@ -21,12 +22,17 @@ class WeatherApp(ctk.CTk):
             os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
 
-    def __init__(self):
+    def set_title(self, user_name):
+        if user_name:
+            self.title(f"Weather Data Analysis ({user_name})")
+
+    def __init__(self, previous_data):
         super().__init__()
+        WeatherApp.center_window(self, WeatherApp.window_width, WeatherApp.window_height)
+        WeatherApp.current_user = previous_data
+
         self.location = None
-        self.window_width = 825
-        self.window_height = 410
-        self.title("Weather Data Analysis, developed by - Alok Sharma | Class 12th")
+        self.set_title(previous_data["user_name"])
         self.geometry(f"{self.window_width}x{self.window_height}")
         self.resizable(height=False, width=False)
 
@@ -65,10 +71,10 @@ class WeatherApp(ctk.CTk):
             padx=(15, 5),
             pady=(0, 5)
         )
-
-        # Add a button below the text field
+        self.bind('<Return>', lambda event: self.update_app())
         self.button = ctk.CTkButton(self.left_frame, command=self.update_app, text="Search", width=17, height=30,
                                     font=ctk.CTkFont(family='Constantia', size=15))
+
         self.button.grid(row=2, column=1, padx=(5, 15), pady=(0, 5), ipady=2)
 
         # Add an indeterminate progress bar below the button
@@ -117,27 +123,24 @@ class WeatherApp(ctk.CTk):
 
     @staticmethod
     def center_window(window, width, height):
-        # Get the screen width and height
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
-
-        # Calculate the position to center the window
-        x_position = (screen_width - width) // 2
-        y_position = (screen_height - height) // 2
+        x = (window.winfo_screenwidth()//2)-(width//2)
+        y = (window.winfo_screenheight()//2)-(height//2)
 
         # Set the geometry of the window to center it on the screen
-        window.geometry(f"{width}x{height}+{x_position}+{y_position}")
+        window.geometry("{}x{}+{}+{}".format(width, height, x, y))
 
-    def add_tabview_frame(self):
+
+    def add_tabview_frame(self, btn1_name):
         self.tabview_addbtn.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         self.tabview_addbtn.grid_columnconfigure(0, weight=1)
 
         # Create widgets inside the frame
-        self.add_status_label = ctk.CTkLabel(self.tabview_addbtn, text="")
+        self.add_status_label = ctk.CTkLabel(self.tabview_addbtn, text="", font=ctk.CTkFont(family="Helvetica", size=12, weight="bold"))
         self.add_status_label.grid(sticky="nsew", padx=10)
 
         self.add_user_name = ctk.CTkEntry(self.tabview_addbtn, placeholder_text="Username", font=ctk.CTkFont(family='Constantia', size=15))
         self.add_user_name.grid(sticky="nsew", pady=10)
+        self.after(1000, lambda: self.add_user_name.focus_set())
 
         self.add_api_key = ctk.CTkEntry(self.tabview_addbtn, placeholder_text="API Key",  font=ctk.CTkFont(family='Constantia', size=15))
         self.add_api_key.grid(sticky="nsew", pady=(0, 10))
@@ -149,26 +152,35 @@ class WeatherApp(ctk.CTk):
                                         command=lambda: self.add_status_label.configure(
                                             text=save_api(self.add_user_name, self.add_api_key, self.add_password)),
                                         height=28,  font=ctk.CTkFont(family='Constantia', size=15))
+        # self.manager_tabview.tab(btn1_name).bind('<Return>', lambda event: save_api(self.add_user_name, self.add_api_key, self.add_password))
         self.add_submit.grid(sticky="e")
 
-    def load_tabview_frame(self):
+    def load_tabview_frame(self, btn2_name):
         self.tabview_loadbtn.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         self.tabview_loadbtn.grid_columnconfigure(0, weight=1)
 
         # Create widgets inside the frame
-        self.load_status_label = ctk.CTkLabel(self.tabview_loadbtn, text="")
+        self.load_status_label = ctk.CTkLabel(self.tabview_loadbtn, text="", font=ctk.CTkFont(family="Helvetica", size=12, weight="bold"))
         self.load_status_label.grid(sticky="nsew", padx=10)
 
         self.load_user_name = ctk.CTkEntry(self.tabview_loadbtn, placeholder_text="Username", font=ctk.CTkFont(family='Constantia', size=15))
         self.load_user_name.grid(sticky="nsew", pady=10)
+        self.after(500, lambda: self.load_user_name.focus_set())
 
         self.load_password = ctk.CTkEntry(self.tabview_loadbtn, placeholder_text="Password", font=ctk.CTkFont(family='Constantia', size=15))
         self.load_password.grid(sticky="nsew", pady=(0, 10))
 
-        self.load_submit = ctk.CTkButton(self.tabview_loadbtn, text="Submit",
-                                         command=lambda: self.load_status_label.configure(
-                                             text=fetch_data(self.load_user_name, self.load_password,
-                                                             context=WeatherApp)), height=28,  font=ctk.CTkFont(family='Constantia', size=15))
+        def featch_data_wrapper():
+            fetched_data = fetch_data(self.load_user_name, self.load_password, context=WeatherApp)
+            self.load_status_label.configure(text=fetched_data[0])
+            self.set_title(fetched_data[1])
+
+        self.load_submit = ctk.CTkButton(self.tabview_loadbtn,
+                                         text="Submit",
+                                         command=lambda: featch_data_wrapper(),
+                                         height=28,
+                                         font=ctk.CTkFont(family='Constantia', size=15))
+        # self.manager_tabview.tab(btn2_name).bind('<Return>', lambda event: featch_data_wrapper())
         self.load_submit.grid(sticky="e")
 
     def configure_api_manager_widgets(self):
@@ -196,15 +208,15 @@ class WeatherApp(ctk.CTk):
         self.manager_tabview.add(btn1_name)
         self.manager_tabview.add(btn2_name)
         self.manager_tabview.set(btn2_name)
+
         self.tabview_addbtn = ctk.CTkFrame(self.manager_tabview.tab(btn1_name))
         self.manager_tabview.tab(btn1_name).grid_columnconfigure(0, weight=1)
 
         self.tabview_loadbtn = ctk.CTkFrame(self.manager_tabview.tab(btn2_name))
         self.manager_tabview.tab(btn2_name).grid_columnconfigure(0, weight=1)
 
-        self.add_tabview_frame()
-        self.load_tabview_frame()
-
+        self.add_tabview_frame(btn1_name)
+        self.load_tabview_frame(btn2_name)
     def open_api_manager(self):
         self.top = ctk.CTkToplevel(self)
         self.top.withdraw()
@@ -244,7 +256,9 @@ class WeatherApp(ctk.CTk):
 
             self.progress_bar.stop()
             self.progress_bar.set(1)
+            self.button.configure(state="normal")
             self.button.configure(state="enabled")
+
 
         # Start a new thread for the time-consuming task
         thread = threading.Thread(target=analyze_and_plot_thread)
@@ -275,9 +289,8 @@ class WeatherApp(ctk.CTk):
 
 if __name__ == '__main__':
     create_weather_api_table()
-    load_from_json(context=WeatherApp)
-    app = WeatherApp()
-    pywinstyles.change_header_color(app, color="grey17")
-    pywinstyles.change_title_color(app, color="white")
+    app = WeatherApp(previous_data = load_from_json())
+    # pywinstyles.change_header_color(app, color="grey17")
+    # pywinstyles.change_title_color(app, color="white")
     app.iconbitmap(WeatherApp.resource_path(r"assets\sun.ico"))
     app.mainloop()
