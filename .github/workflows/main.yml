@@ -30,6 +30,6 @@ jobs:
     - name: Build EXE with PyInstaller
       run: |
         $CUSTOMTKINTER_PATH = $(python -c "import customtkinter; print(customtkinter.__path__[0])")
-        ASSETS_PATH="./assets"
+        $ASSETS_PATH="./assets"
         echo $ASSETS_PATH
         echo $CUSTOMTKINTER_PATH
