@@ -4,7 +4,5 @@ Scripts
 share
 identifier.sqlite
 pyvenv.cfg
-weather.db
-weather.exe
 .idea
 __pycache__/

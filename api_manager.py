@@ -16,31 +16,39 @@ JSON_FILE = os.path.join(DATA_DIR, "last_logged.json")
 def create_weather_api_table():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute('''
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
             user_name TEXT UNIQUE,
             api_key TEXT,
             password TEXT
         )
-    ''')
+    """
+    )
     conn.commit()
     conn.close()
 
 
 def user_exists(user_name):
     conn = sqlite3.connect(DATABASE)
-    result = conn.execute('SELECT user_name, password, api_key FROM users WHERE user_name = ?', (user_name,)).fetchone()
+    result = conn.execute(
+        "SELECT user_name, password, api_key FROM users WHERE user_name = ?",
+        (user_name,),
+    ).fetchone()
     conn.close()
     return [result is not None, result]
 
 
 def verify_api_key(api_key):
     try:
-        response = requests.get(f'http://api.weatherapi.com/v1/current.json?key={api_key}&q=Ranchi')
-        return (response.status_code == 200, None)
+        response = requests.get(
+            f"https://api.weatherapi.com/v1/current.json?key={api_key}&q=Ranchi"
+        )
+        return response.status_code == 200, None
     except requests.exceptions.ConnectionError:
-        return (False, 'Please check your internet connection.')
+        return False, "Please check your internet connection."
+
 
 def save_api(user_wgt, api_wgt, pass_wgt):
     user_name, api_key, password = user_wgt.get(), api_wgt.get(), pass_wgt.get()
@@ -53,13 +61,19 @@ def save_api(user_wgt, api_wgt, pass_wgt):
             if status:
                 conn = sqlite3.connect(DATABASE)
                 cursor = conn.cursor()
-                cursor.execute('INSERT INTO users (user_name, api_key, password) VALUES (?, ?, ?)',
-                           (user_name, api_key, password))
+                cursor.execute(
+                    "INSERT INTO users (user_name, api_key, password) VALUES (?, ?, ?)",
+                    (user_name, api_key, password),
+                )
                 conn.commit()
                 conn.close()
                 return f"Username [{user_name}]  saved successfully."
             else:
-                return "Invalid API key, please try again!" if connection_msg == None else connection_msg
+                return (
+                    "Invalid API key, please try again!"
+                    if connection_msg is None
+                    else connection_msg
+                )
     else:
         return "Please fill in all fields."
 
@@ -71,9 +85,12 @@ def fetch_data(user_wgt, pass_wgt, context):
     if result[0] and result[1][1] == password:
         context.current_user = {"user_name": result[1][0], "api_key": result[1][2]}
         save_to_json(context.current_user)
-        return [f"Welcome back {user_name}!",user_name]
+        return [f"Welcome back {user_name}!", user_name]
     else:
-        return [f"No data found for the provided \n username [{user_name}] and password.", None]
+        return [
+            f"No data found for the provided \n username [{user_name}] and password.",
+            None,
+        ]
 
 
 def save_to_json(user_data):
