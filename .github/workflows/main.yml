@@ -3,9 +3,9 @@ name: Build EXE with PyInstaller
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
@@ -13,7 +13,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
     - name: Set up Python 3.9
       uses: actions/setup-python@v3
@@ -25,7 +26,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pyinstaller
-        
+
+    - name: Debug installed packages
+      run: |
+        pip freeze
+
+    - name: Debug directory contents
+      run: |
+        ls -R "$GITHUB_WORKSPACE/Lib/site-packages/customtkinter"
+        ls -R "$GITHUB_WORKSPACE/assets"
+
     - name: Build EXE with PyInstaller
       run: |
         pyinstaller --noconfirm --onefile --windowed --icon "$GITHUB_WORKSPACE/assets/sun.ico" --add-data "$GITHUB_WORKSPACE/Lib/site-packages/customtkinter;customtkinter/" --add-data "$GITHUB_WORKSPACE/assets;assets/" "main.py"
