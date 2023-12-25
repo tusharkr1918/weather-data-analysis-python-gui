@@ -31,5 +31,5 @@ jobs:
       run: |
         $CUSTOMTKINTER_PATH = $(python -c "import customtkinter; print(customtkinter.__path__[0])")
         $ASSETS_PATH="./assets"
-        echo $ASSETS_PATH
+        echo $GITHUB_WORKSPACE
         echo $CUSTOMTKINTER_PATH
