@@ -33,9 +33,10 @@ jobs:
 
     - name: Debug directory contents
       run: |
-        ls -R "$GITHUB_WORKSPACE\Lib\site-packages\customtkinter"
-        ls -R "$GITHUB_WORKSPACE\assets"
+        python -c "import os, customtkinter; print(os.path.dirname(customtkinter.__file__))"
+        ls -R "$GITHUB_WORKSPACE/assets"
 
     - name: Build EXE with PyInstaller
       run: |
-        pyinstaller --noconfirm --onefile --windowed --icon "$GITHUB_WORKSPACE/assets/sun.ico" --add-data "$GITHUB_WORKSPACE\Lib\site-packages\customtkinter;customtkinter/" --add-data "$GITHUB_WORKSPACE/assets;assets/" "main.py"
+        CUSTOMTKINTER_PATH=$(python -c "import customtkinter; print(customtkinter.__path__[0])")
+        pyinstaller --noconfirm --onefile --windowed --icon "$GITHUB_WORKSPACE/assets/sun.ico" --add-data "$CUSTOMTKINTER_PATH;customtkinter/" --add-data "$GITHUB_WORKSPACE/assets;assets/" "main.py"
