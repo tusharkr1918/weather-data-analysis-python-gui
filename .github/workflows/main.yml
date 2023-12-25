@@ -3,9 +3,9 @@ name: Build EXE with PyInstaller
 on:
   workflow_dispatch:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
 
 jobs:
   build:
@@ -33,9 +33,9 @@ jobs:
 
     - name: Debug directory contents
       run: |
-        ls -R "$GITHUB_WORKSPACE/Lib/site-packages/customtkinter"
-        ls -R "$GITHUB_WORKSPACE/assets"
+        ls -R "$GITHUB_WORKSPACE\Lib\site-packages\customtkinter"
+        ls -R "$GITHUB_WORKSPACE\assets"
 
     - name: Build EXE with PyInstaller
       run: |
-        pyinstaller --noconfirm --onefile --windowed --icon "$GITHUB_WORKSPACE/assets/sun.ico" --add-data "$GITHUB_WORKSPACE/Lib/site-packages/customtkinter;customtkinter/" --add-data "$GITHUB_WORKSPACE/assets;assets/" "main.py"
+        pyinstaller --noconfirm --onefile --windowed --icon "$GITHUB_WORKSPACE/assets/sun.ico" --add-data "$GITHUB_WORKSPACE\Lib\site-packages\customtkinter;customtkinter/" --add-data "$GITHUB_WORKSPACE/assets;assets/" "main.py"
