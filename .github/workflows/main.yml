@@ -38,5 +38,5 @@ jobs:
 
     - name: Build EXE with PyInstaller
       run: |
-        CUSTOMTKINTER_PATH=$(python -c "import customtkinter; print(customtkinter.__path__[0])")
+        $CUSTOMTKINTER_PATH = $(python -c "import customtkinter; print(customtkinter.__path__[0])")
         pyinstaller --noconfirm --onefile --windowed --icon "$GITHUB_WORKSPACE/assets/sun.ico" --add-data "$CUSTOMTKINTER_PATH;customtkinter/" --add-data "$GITHUB_WORKSPACE/assets;assets/" "main.py"
