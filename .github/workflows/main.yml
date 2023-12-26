@@ -4,8 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build:
@@ -30,4 +28,6 @@ jobs:
     - name: Build EXE with PyInstaller
       run: |
         echo $GITHUB_WORKSPACE
+        pyinstaller --noconfirm --onefile --windowed --icon "/assets/sun.ico" --add-data "$CUSTOMTKINTER_PATH;customtkinter/" --add-data "/assets;assets/" "main.py"
+
 
