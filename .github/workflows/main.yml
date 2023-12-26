@@ -27,5 +27,4 @@ jobs:
 
     - name: Build EXE with PyInstaller
       run: |
-        echo $GITHUB_WORKSPACE
-        pyinstaller --noconfirm --onefile --windowed --icon "./assets/sun.ico" --add-data "./assets;assets/"  --add-data "./customtkinter;customtkinter/" "./main.py"
+        pyinstaller --noconfirm --onefile --windowed "/main.py" 
