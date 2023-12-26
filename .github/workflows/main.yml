@@ -27,7 +27,7 @@ jobs:
 
     - name: Build EXE with PyInstaller
       run: |
-        pyinstaller --noconfirm --onefile --console "main.py"  --icon "assets/sun.ico" --add-data "assets/;assets" 
+        pyinstaller --noconfirm --onefile --console  --icon "assets/sun.ico" --add-data "assets/;assets"  "main.py"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
