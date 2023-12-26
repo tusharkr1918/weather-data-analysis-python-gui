@@ -27,12 +27,12 @@ jobs:
 
     - name: Build EXE with PyInstaller
       run: |
-        pyinstaller --noconfirm --onefile --windowed "main.py" 
+        pyinstaller --noconfirm --onefile --windowed "main.py" --add-data "assets/;assets"
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
-        name: my-artifact
+        name: weather-artifact
         path: dist/
 
 
