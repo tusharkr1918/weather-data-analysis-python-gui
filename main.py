@@ -276,9 +276,9 @@ class WeatherApp(ctk.CTk):
         self.api_label.grid(row=0, column=0, pady=(20, 0), padx=40, sticky="new")
 
         self.manager_tabview = ctk.CTkTabview(self.top)
-        self.manager_tabview.segmented_button.configure(
-            font=ctk.CTkFont(family="Constantia", size=12)
-        )
+        # self.manager_tabview.segmented_button.configure(
+        #     font=ctk.CTkFont(family="Constantia", size=12)
+        # )
         self.manager_tabview.grid(
             row=1, column=0, columnspan=2, padx=20, pady=(5, 20), sticky="nsew"
         )
